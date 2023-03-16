@@ -171,9 +171,6 @@ class FlashList<T> extends React.PureComponent<
         newState.numColumns,
         nextProps
       );
-      // RLV retries to reposition the first visible item on layout provider change.
-      // It's not required in our case so we're disabling it
-      newState.layoutProvider.shouldRefreshWithAnchoring = false;
     }
     if (nextProps.data !== prevState.data) {
       newState.data = nextProps.data;
@@ -188,6 +185,10 @@ class FlashList<T> extends React.PureComponent<
       newState.extraData = { value: nextProps.extraData };
     }
     newState.renderItem = nextProps.renderItem;
+
+    // RLV retries to reposition the first visible item on layout provider change.
+    // It's not required in our case so we're disabling it
+    newState.layoutProvider.shouldRefreshWithAnchoring = false;
     return newState;
   }
 
@@ -465,6 +466,9 @@ class FlashList<T> extends React.PureComponent<
           onBlankAreaEvent={this.props.onBlankArea}
           onLayout={this.updateDistanceFromWindow}
           disableAutoLayout={this.props.disableAutoLayout}
+          experimentalMaintainTopContentPosition={
+            this.props.experimentalMaintainTopContentPosition
+          }
         >
           {children}
         </AutoLayoutView>
@@ -500,6 +504,10 @@ class FlashList<T> extends React.PureComponent<
           ...getCellContainerPlatformStyles(this.props.inverted!!, parentProps),
         }}
         index={parentProps.index}
+        stableId={
+          /* Empty string is used so the list can still render without an extractor */
+          this.props.keyExtractor?.(parentProps.data, parentProps.index) ?? ""
+        }
       >
         <PureComponentWrapper
           extendedState={parentProps.extendedState}

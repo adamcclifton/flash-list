@@ -2,8 +2,6 @@ package com.shopify.reactnative.flash_list
 
 import android.content.Context
 import android.graphics.Canvas
-import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
@@ -22,7 +20,13 @@ class AutoLayoutView(context: Context) : ReactViewGroup(context) {
     var enableInstrumentation = false
     var disableAutoLayout = false
 
-    var pixelDensity = 1.0;
+    var pixelDensity = 1.0
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        val scrollView = getParentScrollView()
+        alShadow.fixContentPosition(scrollView as ScrollView)
+        super.onLayout(changed, left, top, right, bottom)
+    }
 
     /** Overriding draw instead of onLayout. RecyclerListView uses absolute positions for each and every item which means that changes in child layouts may not trigger onLayout on this container. The same layout
      * can still cause views to overlap. Therefore, it makes sense to override draw to do correction. */
@@ -66,7 +70,7 @@ class AutoLayoutView(context: Context) : ReactViewGroup(context) {
             }
             positionSortedViews.sortBy { it.index }
             alShadow.offsetFromStart = if (alShadow.horizontal) left else top
-            alShadow.clearGapsAndOverlaps(positionSortedViews)
+            alShadow.clearGapsAndOverlaps(positionSortedViews, getParentScrollView() as ScrollView)
         }
     }
 
